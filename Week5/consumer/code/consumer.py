@@ -14,7 +14,7 @@ def show_meal():
     data = response.json()
     meal = data['Meal']
     price = data['Price']
-    return render_template('yummy.html', meal=meal, price=price)
+    return render_template('meal.html', meal=meal, price=price)
 
 
 if __name__ == '__main__':
