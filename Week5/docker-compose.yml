@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  api:
+    build: ./api/
+    hostname: api
+    environment:
+      - API_PORT=${API_PORT}
+      - DB_HOST=${DB_HOST}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+    volumes:
+      - ./api/code:/app/
+    command: python api.py
+    ports:
+      - "${API_PORT}:${API_PORT}"
+      
+  consumer:
+    build:  ./consumer/
+    hostname: consumer
+    environment:
+      - API_HOST=${API_HOST}
+      - API_PORT=${API_PORT}
+      - CONSUMER_PORT=${CONSUMER_PORT}
+    volumes:
+      - ./consumer/code:/app/
+    command: python consumer.py
+    ports:
+      - "${CONSUMER_PORT}:${CONSUMER_PORT}"
+
+  db_admin:
+    image: dpage/pgadmin4
+    hostname: dba 
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGA_ADMIN_NAME}
+      - PGADMIN_DEFAULT_PASSWORD=${PGA_ADMIN_PASS}
+    ports:
+      - "${PGA_PORT}:${PGA_PORT}"
+
+  db:
+    image: postgres:12.12
+    hostname: db
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes: 
+      - ./db/data:/var/lib/postgresql/data/
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
